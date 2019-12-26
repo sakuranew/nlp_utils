@@ -1,0 +1,17 @@
+import torch
+from torch.utils.data.sampler import WeightedRandomSampler
+from collections import Counter
+import numpy as np
+class ImbalancedDatasetSampler(WeightedRandomSampler):
+    def __init__(self,dataset, weights=None, num_samples=None,extract_func=None, replacement=True):
+        if not extract_func: extract_func=lambda x:x[-1]
+        if not num_samples: num_samples=len(dataset)
+        labels=[extract_func(x) for x in dataset]
+        # print(np.bincount(labels))
+        if weights is None:weights=1.0/np.asarray(list(Counter(labels).values()))
+        super().__init__(weights,num_samples,replacement)
+
+if __name__=='__main__':
+    print(list(ImbalancedDatasetSampler(torch.utils.data.TensorDataset(torch.tensor([[1,2],[0,1]]),torch.tensor([0,1])))))
+
+
